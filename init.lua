@@ -114,11 +114,6 @@ vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' }
 --  Use CTRL+<hjkl> to switch between windows
 --
 --  See `:help wincmd` for a list of all window commands
-vim.keymap.set('n', '<C-h>', '<C-w><C-h>', { desc = 'Move focus to the left window' })
-vim.keymap.set('n', '<C-l>', '<C-w><C-l>', { desc = 'Move focus to the right window' })
-vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
-vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
-
 -- NOTE: Some terminals have colliding keymaps or are not able to send distinct keycodes
 -- vim.keymap.set("n", "<C-S-h>", "<C-w>H", { desc = "Move window to the left" })
 -- vim.keymap.set("n", "<C-S-l>", "<C-w>L", { desc = "Move window to the right" })
@@ -362,7 +357,9 @@ require('lazy').setup({
 
           -- Find references for the word under your cursor.
           -- FIX: Use mini.extra for references (must be wrapped in function)
-          map('grr', function() require('mini.extra').pickers.lsp({ scope = 'references' }) end, '[G]oto [R]eferences')
+          map('grr', function()
+            require('mini.extra').pickers.lsp { scope = 'references' }
+          end, '[G]oto [R]eferences')
 
           -- Jump to the implementation of the word under your cursor.
           --  Useful when your language has ways of declaring types without an actual implementation.
@@ -493,7 +490,7 @@ require('lazy').setup({
         -- clangd = {},
         -- pyright = {},
         -- rust_analyzer = {},
-        
+
         -- User Requirement: Gopls
         gopls = {
           settings = {
@@ -504,7 +501,7 @@ require('lazy').setup({
             },
           },
         },
-        
+
         -- User Requirement: Typescript (ts_ls)
         ts_ls = {},
 
@@ -598,18 +595,18 @@ require('lazy').setup({
         -- python = { "isort", "black" },
         --
         -- You can use 'stop_after_first' to run the first available formatter from the list
-        
+
         -- User Requirement: Prettier and Go Formatting
-        go = { "goimports", "gofmt" },
-        javascript = { "prettier" },
-        typescript = { "prettier" },
-        javascriptreact = { "prettier" },
-        typescriptreact = { "prettier" },
-        css = { "prettier" },
-        html = { "prettier" },
-        json = { "prettier" },
-        yaml = { "prettier" },
-        markdown = { "prettier" },
+        go = { 'goimports', 'gofmt' },
+        javascript = { 'prettier' },
+        typescript = { 'prettier' },
+        javascriptreact = { 'prettier' },
+        typescriptreact = { 'prettier' },
+        css = { 'prettier' },
+        html = { 'prettier' },
+        json = { 'prettier' },
+        yaml = { 'prettier' },
+        markdown = { 'prettier' },
       },
     },
   },
@@ -718,7 +715,7 @@ require('lazy').setup({
     'nyoom-engineering/oxocarbon.nvim',
     priority = 1000,
     config = function()
-      vim.opt.background = "dark"
+      vim.opt.background = 'dark'
       vim.cmd.colorscheme 'oxocarbon'
     end,
   },
@@ -748,21 +745,21 @@ require('lazy').setup({
       local statusline = require 'mini.statusline'
       -- User Requirement: No icons
       -- User Requirement: Mode, Git Branch, Line/Col number only.
-      statusline.setup { 
+      statusline.setup {
         use_icons = false,
         content = {
           active = function()
-            local mode, mode_hl = MiniStatusline.section_mode({ trunc_width = 120 })
+            local mode, mode_hl = MiniStatusline.section_mode { trunc_width = 120 }
             -- Explicitly get git branch via gitsigns to avoid "fluff" like diff counts
-            local git = vim.b.gitsigns_head or ""
-            local location = "%l:%v"
-            
-            return MiniStatusline.combine_groups({
+            local git = vim.b.gitsigns_head or ''
+            local location = '%l:%v'
+
+            return MiniStatusline.combine_groups {
               { hl = mode_hl, strings = { mode } },
               { hl = 'MiniStatuslineDevinfo', strings = { git } },
               '%=', -- Align rest to right
               { hl = 'MiniStatuslineFilename', strings = { location } },
-            })
+            }
           end,
         },
       }
@@ -774,13 +771,13 @@ require('lazy').setup({
       statusline.section_location = function()
         return '%2l:%-2v'
       end
-      
+
       -- FIX: Setup mini.extra to allow usage of extra pickers (including lsp)
       require('mini.extra').setup()
-      
+
       -- User Requirement: Mini.pick for files and buffers
-      local pick = require('mini.pick')
-      pick.setup({
+      local pick = require 'mini.pick'
+      pick.setup {
         -- User Requirement: Disable icons in pickers to avoid question marks
         source = {
           show = function(buf_id, items, query)
@@ -788,16 +785,22 @@ require('lazy').setup({
           end,
         },
         window = {
-            config = {
-                border = 'double' -- Clean border, no icons needed
-            }
-        }
-      })
-      
-      vim.keymap.set('n', '<leader>ff', function() pick.builtin.files() end, { desc = '[F]ind [F]iles' })
-      vim.keymap.set('n', '<leader>bb', function() pick.builtin.buffers() end, { desc = '[F]ind [B]uffers' })
+          config = {
+            border = 'double', -- Clean border, no icons needed
+          },
+        },
+      }
+
+      vim.keymap.set('n', '<leader>ff', function()
+        pick.builtin.files()
+      end, { desc = '[F]ind [F]iles' })
+      vim.keymap.set('n', '<leader>bb', function()
+        pick.builtin.buffers()
+      end, { desc = '[F]ind [B]uffers' })
       -- Helper for help
-      vim.keymap.set('n', '<leader>sh', function() pick.builtin.help() end, { desc = '[S]earch [H]elp' })
+      vim.keymap.set('n', '<leader>sh', function()
+        pick.builtin.help()
+      end, { desc = '[S]earch [H]elp' })
 
       -- ... and there is more!
       --  Check out: https://github.com/echasnovski/mini.nvim
@@ -849,7 +852,7 @@ require('lazy').setup({
   --    This is the easiest way to modularize your config.
   --
   --  Uncomment the following line and add your plugins to `lua/custom/plugins/*.lua` to get going.
-  -- { import = 'custom.plugins' },
+  { import = 'custom.plugins' },
   --
   -- For additional information with loading, sourcing and examples see `:help lazy.nvim-🔌-plugin-spec`
   -- Or use telescope!
