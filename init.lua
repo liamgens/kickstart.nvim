@@ -724,7 +724,7 @@ require('lazy').setup({
   { 'folke/todo-comments.nvim', event = 'VimEnter', dependencies = { 'nvim-lua/plenary.nvim' }, opts = { signs = false } },
 
   { -- Collection of various small independent plugins/modules
-    'echasnovski/mini.nvim',
+    'nvim-mini/mini.nvim',
     config = function()
       -- Better Around/Inside textobjects
       --
@@ -778,6 +778,11 @@ require('lazy').setup({
       -- User Requirement: Mini.pick for files and buffers
       local pick = require 'mini.pick'
       pick.setup {
+        -- User Requirement: Allow navigation with hjkl (mapped to C-j/C-k)
+        mappings = {
+          move_down = '<C-j>',
+          move_up = '<C-k>',
+        },
         -- User Requirement: Disable icons in pickers to avoid question marks
         source = {
           show = function(buf_id, items, query)
