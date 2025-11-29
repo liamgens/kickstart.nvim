@@ -13,10 +13,10 @@ vim.keymap.set('n', 'q', '<Nop>', { noremap = true, silent = true })
 vim.g.have_nerd_font = false
 
 -- Set sensible default indentation (guess-indent.nvim will auto-detect per file)
-vim.opt.expandtab = true      -- Use spaces instead of tabs by default
-vim.opt.tabstop = 4           -- Display tabs as 4 spaces wide
-vim.opt.shiftwidth = 2        -- Indent by 2 spaces for space-indented files
-vim.opt.softtabstop = 2       -- Insert 2 spaces when tab is pressed
+vim.opt.expandtab = true -- Use spaces instead of tabs by default
+vim.opt.tabstop = 4 -- Display tabs as 4 spaces wide
+vim.opt.shiftwidth = 2 -- Indent by 2 spaces for space-indented files
+vim.opt.softtabstop = 2 -- Insert 2 spaces when tab is pressed
 
 -- Make line numbers default
 vim.o.number = true
@@ -104,7 +104,7 @@ vim.keymap.set('n', '<leader>qq', '<cmd>qa<CR>', { desc = 'Quit All' })
 vim.keymap.set('n', '<leader>ww', '<C-w>w', { desc = 'switch windows' })
 vim.keymap.set('n', '<leader>ws', '<C-w>s', { desc = 'split' })
 vim.keymap.set('n', '<leader>wv', '<C-w>v', { desc = 'vsplit' })
-vim.keymap.set('n', '<leader>wc', '<C-w>c', { desc = 'close' })
+vim.keymap.set('n', '<leader>wd', '<C-w>d', { desc = 'delete' })
 vim.keymap.set('n', '<leader>wo', '<C-w>o', { desc = 'only' })
 vim.keymap.set('n', '<leader>w=', '<C-w>=', { desc = 'equalize' })
 vim.keymap.set('n', '<leader>wq', '<C-w>q', { desc = 'quit' })
@@ -158,6 +158,7 @@ require('lazy').setup({
   -- See `:help gitsigns` to understand what the configuration keys do
   { -- Adds git related signs to the gutter, as well as utilities for managing changes
     'lewis6991/gitsigns.nvim',
+    event = { 'BufReadPre', 'BufNewFile' },
   },
   -- LSP Plugins
   {
@@ -175,6 +176,7 @@ require('lazy').setup({
   {
     -- Main LSP Configuration
     'neovim/nvim-lspconfig',
+    event = { 'BufReadPre', 'BufNewFile' },
     dependencies = {
       -- Automatically install LSPs and related tools to stdpath for Neovim
       -- Mason must be loaded before its dependents so we need to set it up here.
@@ -227,35 +229,35 @@ require('lazy').setup({
           -- for LSP related items. It sets the mode, buffer and description for us each time.
           local map = function(keys, func, desc, mode)
             mode = mode or 'n'
-            vim.keymap.set(mode, keys, func, { buffer = event.buf, desc = 'LSP: ' .. desc })
+            vim.keymap.set(mode, keys, func, { buffer = event.buf, desc = '' .. desc })
           end
 
           -- Rename the variable under your cursor.
           --  Most Language Servers support renaming across files, etc.
-          map('grn', vim.lsp.buf.rename, '[R]e[n]ame')
+          map('<leader>gn', vim.lsp.buf.rename, 'rename')
 
           -- Execute a code action, usually your cursor needs to be on top of an error
           -- or a suggestion from your LSP for this to activate.
-          map('gra', vim.lsp.buf.code_action, '[G]oto Code [A]ction', { 'n', 'x' })
+          map('<leader>ga', vim.lsp.buf.code_action, 'action', { 'n', 'x' })
 
           -- Find references for the word under your cursor.
           -- FIX: Use mini.extra for references (must be wrapped in function)
-          map('grr', function()
+          map('<leader>gr', function()
             require('mini.extra').pickers.lsp { scope = 'references' }
-          end, '[G]oto [R]eferences')
+          end, 'references')
 
           -- Jump to the implementation of the word under your cursor.
           --  Useful when your language has ways of declaring types without an actual implementation.
-          map('gri', vim.lsp.buf.implementation, '[G]oto [I]mplementation')
+          map('<leader>gi', vim.lsp.buf.implementation, 'implementation')
 
           -- Jump to the definition of the word under your cursor.
           --  This is where a variable was first declared, or where a function is defined, etc.
           --  To jump back, press <C-t>.
-          map('grd', vim.lsp.buf.definition, '[G]oto [D]efinition')
+          map('<leader>gd', vim.lsp.buf.definition, 'definition')
 
           -- WARN: This is not Goto Definition, this is Goto Declaration.
           --  For example, in C this would take you to the header.
-          map('grD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
+          map('<leader>gD', vim.lsp.buf.declaration, 'declaration')
 
           -- Fuzzy find all the symbols in your current document.
           --  Symbols are things like variables, functions, types, etc.
@@ -268,7 +270,7 @@ require('lazy').setup({
           -- Jump to the type of the word under your cursor.
           --  Useful when you're not sure what type a variable is and you want to see
           --  the definition of its *type*, not where it was *defined*.
-          map('grt', vim.lsp.buf.type_definition, '[G]oto [T]ype Definition')
+          map('<leader>gt', vim.lsp.buf.type_definition, 'type definition')
 
           -- This function resolves a difference between neovim nightly (version 0.11) and stable (version 0.10)
           ---@param client vim.lsp.Client
@@ -443,6 +445,7 @@ require('lazy').setup({
 
   { -- Autoformat
     'stevearc/conform.nvim',
+    lazy = true,
     event = { 'BufWritePre' },
     cmd = { 'ConformInfo' },
     opts = {
@@ -485,7 +488,7 @@ require('lazy').setup({
 
   { -- Autocompletion
     'saghen/blink.cmp',
-    event = 'VimEnter',
+    event = 'InsertEnter',
     version = '1.*',
     dependencies = {
       -- Snippet Engine
@@ -541,7 +544,9 @@ require('lazy').setup({
         -- <c-k>: Toggle signature help
         --
         -- See :h blink-cmp-config-keymap for defining your own keymap
-        preset = 'default',
+        preset = 'enter',
+        ['<Tab>'] = { 'select_next', 'fallback' },
+        ['<S-Tab>'] = { 'select_prev', 'fallback' },
 
         -- For more advanced Luasnip keymaps (e.g. selecting choice nodes, expansion) see:
         --    https://github.com/L3MON4D3/LuaSnip?tab=readme-ov-file#keymaps
@@ -581,39 +586,14 @@ require('lazy').setup({
       signature = { enabled = true },
     },
   },
-  -- {
-  --   'liamgens/lackluster.nvim',
-  --   lazy = false,
-  --   priority = 1000,
-  --   init = function()
-  --     local lackluster = require 'lackluster'
-  --     lackluster.setup {
-  --       tweak_background = {
-  --         normal = lackluster.color.gray2,
-  --       },
-  --       tweak_syntax = {
-  --         comment = lackluster.color.gray4,
-  --       },
-  --     }
-  --     vim.cmd.colorscheme 'lackluster-night' -- my favorite
-  --   end,
-  -- },
   {
-    'zenbones-theme/zenbones.nvim',
-    -- Optionally install Lush. Allows for more configuration or extending the colorscheme
-    -- If you don't want to install lush, make sure to set g:zenbones_compat = 1
-    -- In Vim, compat mode is turned on as Lush only works in Neovim.
-    dependencies = 'rktjmp/lush.nvim',
+    'EdenEast/nightfox.nvim',
     lazy = false,
     priority = 1000,
-    -- you can set set configuration options here
     config = function()
-      vim.g.zenbones_darken_comments = 45
-      vim.cmd.colorscheme 'neobones'
+      vim.cmd.colorscheme 'nightfox'
     end,
   },
-  --
-
   { -- Collection of various small independent plugins/modules
     'nvim-mini/mini.nvim',
     config = function()
@@ -699,8 +679,6 @@ require('lazy').setup({
       end, { desc = 'grep' })
       vim.keymap.set('n', '<leader>bd', '<cmd>bdelete<cr>', { desc = 'delete' })
 
-      -- ... and there is more!
-      -- User Requirement: Replace which-key with mini.clue
       local miniclue = require 'mini.clue'
       miniclue.setup {
         triggers = {
@@ -751,6 +729,8 @@ require('lazy').setup({
           { mode = 'n', keys = '<Leader>w', desc = 'window' },
           { mode = 'n', keys = '<Leader>c', desc = 'claude' },
           { mode = 'n', keys = '<Leader>x', desc = 'trouble' },
+          { mode = 'n', keys = '<Leader>g', desc = 'lsp' },
+          { mode = 'n', keys = '<Leader>s', desc = 'flash' },
         },
 
         window = {
@@ -758,9 +738,6 @@ require('lazy').setup({
           config = { width = 'auto', border = 'double' },
         },
       }
-
-      -- ... and there is more!
-      --  Check out: https://github.com/echasnovski/mini.nvim
     end,
   },
   { -- Highlight, edit, and navigate code
@@ -774,46 +751,12 @@ require('lazy').setup({
       auto_install = true,
       highlight = {
         enable = true,
-        -- Some languages depend on vim's regex highlighting system (such as Ruby) for indent rules.
-        --  If you are experiencing weird indenting issues, add the language to
-        --  the list of additional_vim_regex_highlighting and disabled languages for indent.
         additional_vim_regex_highlighting = { 'ruby' },
       },
       indent = { enable = true, disable = { 'ruby' } },
     },
-    -- There are additional nvim-treesitter modules that you can use to interact
-    -- with nvim-treesitter. You should go explore a few and see what interests you:
-    --
-    --    - Incremental selection: Included, see `:help nvim-treesitter-incremental-selection-mod`
-    --    - Show your current context: https://github.com/nvim-treesitter/nvim-treesitter-context
-    --    - Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects
   },
-  -- The following comments only work if you have downloaded the kickstart repo, not just copy pasted the
-  -- init.lua. If you want these files, they are in the repository, so you can just download them and
-  -- place them in the correct locations.
-
-  -- NOTE: Next step on your Neovim journey: Add/Configure additional plugins for Kickstart
-  --
-  --  Here are some example plugins that I've included in the Kickstart repository.
-  --  Uncomment any of the lines below to enable them (you will need to restart nvim).
-  --
-  -- require 'kickstart.plugins.debug',
-  -- require 'kickstart.plugins.indent_line',
-  -- require 'kickstart.plugins.lint',
-  -- require 'kickstart.plugins.autopairs',
-  -- require 'kickstart.plugins.neo-tree',
-  -- require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
-
-  -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
-  --    This is the easiest way to modularize your config.
-  --
-  --  Uncomment the following line and add your plugins to `lua/custom/plugins/*.lua` to get going.
   { import = 'custom.plugins' },
-  --
-  -- For additional information with loading, sourcing and examples see `:help lazy.nvim-🔌-plugin-spec`
-  -- Or use telescope!
-  -- In normal mode type `<space>sh` then write `lazy.nvim-plugin`
-  -- you can continue same window with `<space>sr` which resumes last telescope search
 }, {
   ui = {
     -- If you are using a Nerd Font: set icons to an empty table which will use the

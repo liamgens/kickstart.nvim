@@ -23,12 +23,15 @@ return {
   {
     'nvim-tree/nvim-tree.lua',
     version = '*',
-    lazy = false,
+    cmd = { 'NvimTreeToggle', 'NvimTreeFocus', 'NvimTreeFindFile' },
     keys = {
       { '<leader>e', '<cmd>NvimTreeToggle<CR>', desc = 'nvim tree' },
     },
     config = function()
       require('nvim-tree').setup {
+        view = {
+          signcolumn = 'no',
+        },
         renderer = {
           icons = {
             glyphs = {
@@ -46,7 +49,7 @@ return {
           },
         },
         on_attach = function(bufnr)
-          local api = require('nvim-tree.api')
+          local api = require 'nvim-tree.api'
 
           -- Default mappings
           api.config.mappings.default_on_attach(bufnr)
@@ -253,6 +256,98 @@ return {
         '<leader>xQ',
         '<cmd>Trouble qflist toggle<cr>',
         desc = 'Quickfix List (Trouble)',
+      },
+    },
+  },
+  {
+    'folke/todo-comments.nvim',
+    dependencies = { 'nvim-lua/plenary.nvim' },
+    event = 'VeryLazy',
+    opts = {
+      signs = false, -- Disable icons in the gutter
+      highlight = {
+        pattern = [[.*<(KEYWORDS)\s*]], -- Match keywords without requiring word boundaries
+      },
+      search = {
+        pattern = [[\b(KEYWORDS)\b]], -- Still use word boundaries for search to avoid too many false positives
+      },
+    },
+  },
+  {
+    'nvim-focus/focus.nvim',
+    version = '*',
+    event = 'VeryLazy',
+    config = function()
+      require('focus').setup {}
+
+      -- Disable focus for nvim-tree
+      local augroup = vim.api.nvim_create_augroup('FocusDisable', { clear = true })
+
+      vim.api.nvim_create_autocmd('FileType', {
+        group = augroup,
+        callback = function()
+          if vim.tbl_contains({ 'NvimTree' }, vim.bo.filetype) then
+            vim.b.focus_disable = true
+          end
+        end,
+        desc = 'Disable focus for nvim-tree filetype',
+      })
+
+      vim.api.nvim_create_autocmd('WinEnter', {
+        group = augroup,
+        callback = function()
+          if vim.tbl_contains({ 'nofile', 'prompt', 'popup' }, vim.bo.buftype) then
+            vim.w.focus_disable = true
+          end
+        end,
+        desc = 'Disable focus for special buffer types',
+      })
+    end,
+  },
+  {
+    'folke/flash.nvim',
+    event = 'VeryLazy',
+    opts = {},
+    keys = {
+      {
+        's',
+        mode = { 'n', 'x', 'o' },
+        function()
+          require('flash').jump()
+        end,
+        desc = 'flash',
+      },
+      {
+        '<leader>sS',
+        mode = { 'n', 'x', 'o' },
+        function()
+          require('flash').treesitter()
+        end,
+        desc = 'flash treesitter',
+      },
+      {
+        '<leader>sr',
+        mode = 'o',
+        function()
+          require('flash').remote()
+        end,
+        desc = 'remote flash',
+      },
+      {
+        '<leader>sR',
+        mode = { 'o', 'x' },
+        function()
+          require('flash').treesitter_search()
+        end,
+        desc = 'treesitter search',
+      },
+      {
+        '<leader>st',
+        mode = { 'c' },
+        function()
+          require('flash').toggle()
+        end,
+        desc = 'toggle flash search',
       },
     },
   },
