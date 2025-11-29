@@ -7,8 +7,16 @@ vim.g.maplocalleader = ' '
 vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
 
+vim.keymap.set('n', 'q', '<Nop>', { noremap = true, silent = true })
+
 -- Set to true if you have a Nerd Font installed and selected in the terminal
 vim.g.have_nerd_font = false
+
+-- Set sensible default indentation (guess-indent.nvim will auto-detect per file)
+vim.opt.expandtab = true      -- Use spaces instead of tabs by default
+vim.opt.tabstop = 4           -- Display tabs as 4 spaces wide
+vim.opt.shiftwidth = 2        -- Indent by 2 spaces for space-indented files
+vim.opt.softtabstop = 2       -- Insert 2 spaces when tab is pressed
 
 -- Make line numbers default
 vim.o.number = true
@@ -32,6 +40,8 @@ end)
 
 -- Enable break indent
 vim.o.breakindent = true
+vim.o.smartindent = true
+vim.o.smarttab = true
 
 -- Save undo history
 vim.o.undofile = true
@@ -90,6 +100,22 @@ vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 -- User Request: <leader>qq to quit like LazyVim
 vim.keymap.set('n', '<leader>qq', '<cmd>qa<CR>', { desc = 'Quit All' })
 
+-- User Request: Make <C-w> window commands available via <leader>w
+vim.keymap.set('n', '<leader>ww', '<C-w>w', { desc = 'switch windows' })
+vim.keymap.set('n', '<leader>ws', '<C-w>s', { desc = 'split' })
+vim.keymap.set('n', '<leader>wv', '<C-w>v', { desc = 'vsplit' })
+vim.keymap.set('n', '<leader>wc', '<C-w>c', { desc = 'close' })
+vim.keymap.set('n', '<leader>wo', '<C-w>o', { desc = 'only' })
+vim.keymap.set('n', '<leader>w=', '<C-w>=', { desc = 'equalize' })
+vim.keymap.set('n', '<leader>wq', '<C-w>q', { desc = 'quit' })
+vim.keymap.set('n', '<leader>wx', '<C-w>x', { desc = 'swap' })
+vim.keymap.set('n', '<leader>w-', '<C-w>-', { desc = 'decrease height' })
+vim.keymap.set('n', '<leader>w+', '<C-w>+', { desc = 'increase height' })
+vim.keymap.set('n', '<leader>w<', '<C-w><', { desc = 'decrease width' })
+vim.keymap.set('n', '<leader>w>', '<C-w>>', { desc = 'increase width' })
+vim.keymap.set('n', '<leader>w|', '<C-w>|', { desc = 'max width' })
+vim.keymap.set('n', '<leader>w_', '<C-w>_', { desc = 'max height' })
+
 -- Highlight when yanking (copying) text
 --  Try it with `yap` in normal mode
 --  See `:help vim.hl.on_yank()`
@@ -128,11 +154,11 @@ rtp:prepend(lazypath)
 --
 -- NOTE: Here is where you install your plugins.
 require('lazy').setup({
+
   -- See `:help gitsigns` to understand what the configuration keys do
   { -- Adds git related signs to the gutter, as well as utilities for managing changes
     'lewis6991/gitsigns.nvim',
   },
-
   -- LSP Plugins
   {
     -- `lazydev` configures Lua LSP for your Neovim config, runtime and plugins
@@ -347,6 +373,15 @@ require('lazy').setup({
               gofumpt = true,
             },
           },
+          filetypes = { 'go', 'gomod', 'gowork', 'gotmpl' },
+          -- Define capabilities directly here to force the merge
+          capabilities = {
+            workspace = {
+              didChangeWatchedFiles = {
+                dynamicRegistration = false,
+              },
+            },
+          },
         },
 
         -- User Requirement: Typescript (ts_ls)
@@ -546,36 +581,38 @@ require('lazy').setup({
       signature = { enabled = true },
     },
   },
-
+  -- {
+  --   'liamgens/lackluster.nvim',
+  --   lazy = false,
+  --   priority = 1000,
+  --   init = function()
+  --     local lackluster = require 'lackluster'
+  --     lackluster.setup {
+  --       tweak_background = {
+  --         normal = lackluster.color.gray2,
+  --       },
+  --       tweak_syntax = {
+  --         comment = lackluster.color.gray4,
+  --       },
+  --     }
+  --     vim.cmd.colorscheme 'lackluster-night' -- my favorite
+  --   end,
+  -- },
   {
-    -- 'zenbones-theme/zenbones.nvim',
-    -- -- Optionally install Lush. Allows for more configuration or extending the colorscheme
-    -- -- If you don't want to install lush, make sure to set g:zenbones_compat = 1
-    -- -- In Vim, compat mode is turned on as Lush only works in Neovim.
-    -- dependencies = 'rktjmp/lush.nvim',
-    -- lazy = false,
-    -- priority = 1000,
+    'zenbones-theme/zenbones.nvim',
+    -- Optionally install Lush. Allows for more configuration or extending the colorscheme
+    -- If you don't want to install lush, make sure to set g:zenbones_compat = 1
+    -- In Vim, compat mode is turned on as Lush only works in Neovim.
+    dependencies = 'rktjmp/lush.nvim',
+    lazy = false,
+    priority = 1000,
     -- you can set set configuration options here
-    -- config = function()
-    --     vim.g.zenbones_darken_comments = 45
-    --     vim.cmd.colorscheme('zenbones')
-    -- end
-    'EdenEast/nightfox.nvim',
-    priority = 1000, -- Ensure it loads first
     config = function()
-      vim.cmd.colorscheme 'carbonfox'
+      vim.g.zenbones_darken_comments = 45
+      vim.cmd.colorscheme 'neobones'
     end,
-    -- User Requested Theme: Oxocarbon
-    -- 'nyoom-engineering/oxocarbon.nvim',
-    -- priority = 1000,
-    -- config = function()
-    --   vim.opt.background = 'dark'
-    --   vim.cmd.colorscheme 'oxocarbon'
-    -- end,
   },
-
-  -- Highlight todo, notes, etc in comments
-  { 'folke/todo-comments.nvim', event = 'VimEnter', dependencies = { 'nvim-lua/plenary.nvim' }, opts = { signs = false } },
+  --
 
   { -- Collection of various small independent plugins/modules
     'nvim-mini/mini.nvim',
@@ -594,6 +631,7 @@ require('lazy').setup({
       -- - sd'   - [S]urround [D]elete [']quotes
       -- - sr)'  - [S]urround [R]eplace [)] [']
       require('mini.surround').setup()
+      require('mini.pairs').setup()
 
       -- Simple and easy statusline.
       local statusline = require 'mini.statusline'
@@ -645,7 +683,7 @@ require('lazy').setup({
         },
         window = {
           config = {
-            border = 'double', -- Clean border, no icons needed
+            border = 'none', -- Clean border, no icons needed
           },
         },
       }
@@ -656,6 +694,10 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>fb', function()
         pick.builtin.buffers()
       end, { desc = 'buffers' })
+      vim.keymap.set('n', '<leader>fg', function()
+        pick.builtin.grep_live()
+      end, { desc = 'grep' })
+      vim.keymap.set('n', '<leader>bd', '<cmd>bdelete<cr>', { desc = 'delete' })
 
       -- ... and there is more!
       -- User Requirement: Replace which-key with mini.clue
@@ -705,6 +747,10 @@ require('lazy').setup({
           -- Custom Group Descriptions (migrated from which-key)
           { mode = 'n', keys = '<Leader>f', desc = 'find' },
           { mode = 'n', keys = '<Leader>q', desc = 'quit' },
+          { mode = 'n', keys = '<Leader>b', desc = 'buffer' },
+          { mode = 'n', keys = '<Leader>w', desc = 'window' },
+          { mode = 'n', keys = '<Leader>c', desc = 'claude' },
+          { mode = 'n', keys = '<Leader>x', desc = 'trouble' },
         },
 
         window = {
@@ -742,7 +788,6 @@ require('lazy').setup({
     --    - Show your current context: https://github.com/nvim-treesitter/nvim-treesitter-context
     --    - Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects
   },
-
   -- The following comments only work if you have downloaded the kickstart repo, not just copy pasted the
   -- init.lua. If you want these files, they are in the repository, so you can just download them and
   -- place them in the correct locations.
